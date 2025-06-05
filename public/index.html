@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scopeio - Quote Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .quote-form {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .quotes-list {
+            list-style: none;
+            padding: 0;
+        }
+        .quote-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scopeio Quote Management</h1>
+    
+    <div class="quote-form">
+        <h2>Create New Quote</h2>
+        <form id="quoteForm">
+            <div>
+                <label for="customer">Customer Name:</label>
+                <input type="text" id="customer" required>
+            </div>
+            <div id="items">
+                <!-- Items will be populated from pricing data -->
+            </div>
+            <button type="submit">Create Quote</button>
+        </form>
+    </div>
+
+    <h2>Quotes</h2>
+    <ul class="quotes-list" id="quotesList">
+        <!-- Quotes will be populated here -->
+    </ul>
+
+    <script>
+        // Load pricing data and populate items
+        fetch('/pricing')
+            .then(response => response.json())
+            .then(pricing => {
+                const itemsDiv = document.getElementById('items');
+                pricing.forEach(item => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <label>
+                            <input type="checkbox" name="item" value="${item.id}">
+                            ${item.name} - $${item.price}
+                        </label>
+                    `;
+                    itemsDiv.appendChild(div);
+                });
+            });
+
+        // Handle form submission
+        document.getElementById('quoteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customer = document.getElementById('customer').value;
+            const selectedItems = Array.from(document.querySelectorAll('input[name="item"]:checked'))
+                .map(checkbox => parseInt(checkbox.value));
+
+            const response = await fetch('/quote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    customer,
+                    items: selectedItems
+                })
+            });
+
+            if (response.ok) {
+                document.getElementById('customer').value = '';
+                document.querySelectorAll('input[name="item"]').forEach(checkbox => checkbox.checked = false);
+                loadQuotes();
+            }
+        });
+
+        // Load and display quotes
+        function loadQuotes() {
+            fetch('/quotes')
+                .then(response => response.json())
+                .then(quotes => {
+                    const quotesList = document.getElementById('quotesList');
+                    quotesList.innerHTML = quotes.map(quote => `
+                        <li class="quote-item">
+                            <h3>Quote #${quote.id} - ${quote.customer}</h3>
+                            <p>Status: ${quote.status}</p>
+                            ${quote.status === 'draft' ? 
+                                `<button onclick="sendQuote(${quote.id})">Send Quote</button>` : 
+                                ''}
+                        </li>
+                    `).join('');
+                });
+        }
+
+        // Send quote
+        async function sendQuote(id) {
+            const response = await fetch(`/quote/${id}/send`, {
+                method: 'POST'
+            });
+            if (response.ok) {
+                loadQuotes();
+            }
+        }
+
+        // Initial load of quotes
+        loadQuotes();
+    </script>
+</body>
+</html>

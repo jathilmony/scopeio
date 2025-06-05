@@ -9,6 +9,7 @@ const PRICING_FILE = 'pricing.json';
 const QUOTES_FILE = 'quotes.json';
 
 app.use(express.json());
+app.use(express.static('public'));
 
 // Load pricing data
 async function loadPricing() {
@@ -39,6 +40,11 @@ async function loadQuotes() {
 async function saveQuotes(quotes) {
   await fs.writeFile(QUOTES_FILE, JSON.stringify(quotes, null, 2));
 }
+
+// Serve the main page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Get pricing
 app.get('/pricing', async (req, res) => {
