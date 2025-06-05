@@ -1,0 +1,5 @@
+[
+    {"id": 1, "name": "Roof Replacement", "price": 10000},
+    {"id": 2, "name": "Window Installation", "price": 500},
+    {"id": 3, "name": "Siding Repair", "price": 2000}
+]
