@@ -1,0 +1,14 @@
+{
+  "name": "scopeio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.py",
+  "scripts": {
+    "start": "python server.py",
+    "test": "python -m unittest discover -s tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
