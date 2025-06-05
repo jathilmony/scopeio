@@ -2,13 +2,17 @@
   "name": "scopeio",
   "version": "1.0.0",
   "description": "",
-  "main": "server.py",
+  "main": "server.js",
   "scripts": {
-    "start": "python server.py",
-    "test": "python -m unittest discover -s tests"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }
